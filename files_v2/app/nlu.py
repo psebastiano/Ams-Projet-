@@ -62,7 +62,7 @@ class NLU:
             print("[NLU] Injected default EntityRuler patterns:", len(ruler.patterns))
             print("[NLU] entity_model pipes:", self.entity_nlp.pipe_names)
 
-    def parse(self, text: str) -> Dict[str, Any]:
+    def parse(self, text: str, lang: str = "fr") -> Dict[str, Any]:
         text_in = (text or "").strip()
         if not text_in:
             return {"intent": "unknown", "confidence": 0.0, "entities": {}, "raw_text": text}

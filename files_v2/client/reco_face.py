@@ -1,5 +1,3 @@
-# filepath: /media/ybouzid/Y2_3_Dat1/projet/pweb/Api_robot/Ams-Projet-/files_v2/app/reco_face.py
-
 """reco_face.py
 
 Implements the Choregraphe flow:
@@ -21,6 +19,8 @@ import base64
 import os
 import sys
 import time
+import json
+import io
 
 try:
     import qi  # NAOqi Python SDK
@@ -32,10 +32,24 @@ try:
 except Exception:
     requests = None
 
+import numpy as np
+from PIL import Image
 
-DEFAULT_VERIFY_URL = os.environ.get("VERIFY_URL", "http://0.0.0.0:8000/verify")
-DEFAULT_NAO_IP = "192.168.13.66"
+
+DEFAULT_VERIFY_URL = "http://127.0.0.1:8000/verify"
+DEFAULT_NAO_IP = "192.168.13.77"
 DEFAULT_NAO_PORT = "9559"
+
+
+def raw_bgr_to_jpeg_bytes(raw_bytes, width, height):
+    """Convert raw BGR bytes (width*height*3) to JPEG bytes in memory."""
+    img_np = np.frombuffer(raw_bytes, dtype=np.uint8).reshape((height, width, 3))
+    # Convert BGR to RGB
+    img_rgb = img_np[..., ::-1]
+    img_pil = Image.fromarray(img_rgb)
+    buffer = io.BytesIO()
+    img_pil.save(buffer, format="JPEG")
+    return buffer.getvalue()
 
 
 class FaceRecoFlow(object):
@@ -111,19 +125,18 @@ class FaceRecoFlow(object):
             if isinstance(raw, str):
                 raw = raw.encode("latin-1")
 
-            # Convert raw bytes to base64 payload; avoid on-robot heavy deps.
-            # color_space=11 is kBGRColorSpace on NAOqi; raw is (w*h*3).
-            # Many verify APIs accept base64 raw or base64-encoded JPEG.
-            # Here we send raw bytes base64 with metadata.
+            # Convert raw bytes to JPEG bytes
+            jpeg_bytes = raw_bgr_to_jpeg_bytes(raw, width, height)
+
             meta = {
                 "width": int(width),
                 "height": int(height),
                 "camera_id": int(self.camera_id),
                 "resolution": int(self.resolution),
                 "color_space": int(self.color_space),
-                "format": "raw_bgr" if int(self.color_space) == 11 else "raw",
+                "format": "jpeg",
             }
-            return raw, meta
+            return jpeg_bytes, meta
         finally:
             if client:
                 try:
@@ -135,13 +148,20 @@ class FaceRecoFlow(object):
         if requests is None:
             raise RuntimeError("The 'requests' library is required to call the verify API")
 
-        payload = {
-            "image": base64.b64encode(image_bytes).decode("ascii"),
+        # Envoi en multipart/form-data avec un fichier 'image'
+        files = {
+            "image": ("image.jpg", image_bytes, "image/jpeg"),
         }
-        if meta:
-            payload["meta"] = meta
 
-        resp = requests.post(self.verify_url, json=payload, timeout=float(timeout_s))
+        resp = requests.post(
+            self.verify_url,
+            files=files,
+            timeout=float(timeout_s)
+        )
+
+        if not resp.ok:
+            print("[-] API Error {}: {}".format(resp.status_code, resp.text))
+
         resp.raise_for_status()
         # return json if possible
         ctype = resp.headers.get("Content-Type", "")
@@ -188,9 +208,19 @@ def main(argv=None):
         result = flow.call_verify_api(image_bytes, meta=meta)
         print("verify result:")
         print(result)
+
+        if result.get("matched") and result.get("best_match"):
+            nom = result["best_match"].get("nom", "")
+            prenom = result["best_match"].get("prenom", "")
+            text = "Bonjour {} {}".format(prenom, nom)
+
+            tts = session.service("ALTextToSpeech")
+            tts.say(text)
+
         return 0
     finally:
         flow.stop_face_detection()
+
 
 
 if __name__ == "__main__":

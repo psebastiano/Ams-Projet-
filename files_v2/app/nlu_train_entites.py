@@ -6,20 +6,20 @@ from spacy.training.example import Example
 
 # More varied training data
 TRAIN_DATA_ENTITIES = [
-    ("je veux faire du football", {"entities": [(17, 25, "ACTIVITY")]}),
-    ("je voudrais faire du basketball", {"entities": [(21, 31, "ACTIVITY")]}),
-    ("réserver un cours de fitness", {"entities": [(21, 28, "ACTIVITY")]}),
+    ("je veux faire du football", {"entities": [(16, 20, "ACTIVITY")]}),
+    ("je voudrais faire du basketball", {"entities": [(20, 30, "ACTIVITY")]}),
+    ("réserver un cours de fitness", {"entities": [(19, 26, "ACTIVITY")]}),
     ("inscription au futsal", {"entities": [(15, 21, "ACTIVITY")]}),
-    ("je veux jouer au basket", {"entities": [(17, 23, "ACTIVITY")]}),
-    ("est-ce qu'il y a du tennis ?", {"entities": [(20, 26, "ACTIVITY")]}),
+    ("je veux jouer au basket", {"entities": [(18, 24, "ACTIVITY")]}),
+    ("est-ce qu'il y a du tennis ?", {"entities": [(19, 25, "ACTIVITY")]}),
 
-    ("où est la salle de sport", {"entities": [(10, 24, "LOCATION")]}),
-    ("où est la salle", {"entities": [(10, 15, "LOCATION")]}),
-    ("où se trouve le vestiaire", {"entities": [(16, 25, "LOCATION")]}),
-    ("peux-tu m'orienter vers le vestiaire", {"entities": [(27, 36, "LOCATION")]}),
-    ("comment aller au terrain", {"entities": [(17, 24, "LOCATION")]}),
-    ("je cherche l'accueil", {"entities": [(13, 20, "LOCATION")]}),
-    ("où est le secrétariat", {"entities": [(10, 21, "LOCATION")]}),
+    ("où est la salle de sport", {"entities": [(10, 23, "LOCATION")]}),
+    ("où est la salle", {"entities": [(10, 14, "LOCATION")]}),
+    ("où se trouve le vestiaire", {"entities": [(15, 24, "LOCATION")]}),
+    ("peux-tu m'orienter vers le vestiaire", {"entities": [(29, 38, "LOCATION")]}),
+    ("comment aller au terrain", {"entities": [(15, 22, "LOCATION")]}),
+    ("je cherche l'accueil", {"entities": [(10, 16, "LOCATION")]}),
+    ("où est le secrétariat", {"entities": [(10, 20, "LOCATION")]}),
 ]
 
 ACTIVITIES = ["yoga", "fitness", "basket", "basketball", "tennis", "futsal", "natation", "football"]

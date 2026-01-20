@@ -88,11 +88,18 @@ class DialogManager:
         # Try LLM generation
         try:
             print("[DialogManager] calling LLM with intent:", intent)
+            print("[DialogManager] System prompt length:", len(self.system_prompt))
+            print("[DialogManager] History length:", len(history))
 
-            # System pront in modelfile for ollama models -> ici on passe une chaîne vide
-            # assistant_text = self.llm.generate_chat(self.system_prompt, history)
-            assistant_text = self.llm.generate_chat("", history)
+            # FIX: Utiliser self.system_prompt au lieu de ""
+            assistant_text = self.llm.generate_chat(self.system_prompt, history)
             
+            # Vérifier si la réponse est vide
+            if not assistant_text or not assistant_text.strip():
+                print("[DialogManager] WARNING: LLM returned empty response, using fallback")
+                raise LLMError("Empty response from LLM")
+            
+            print("[DialogManager] LLM response length:", len(assistant_text))
             
             # append assistant message to history
             self._append_message(session_id, "assistant", assistant_text)
