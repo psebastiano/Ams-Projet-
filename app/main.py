@@ -10,6 +10,8 @@ from app.dialog_manager import DialogManager
 from app.sessions import SessionStore
 from app.speech import ASRModule
 
+from app.reservation import reserver_salle
+
 
 app = FastAPI(title="Serveur de dialogue - Robot d'accueil")
 
@@ -36,6 +38,16 @@ class RespondResponse(BaseModel):
     text: str
     actions: Dict[str, Any]
     session_id: str
+
+class Creneau(BaseModel):
+    jour: str
+    heure_debut: str
+    heure_fin: str
+
+class ReservationRequest(BaseModel):
+    utilisateur_id: str 
+    salle: str
+    creneau: Creneau
 
 @app.post("/v1/asr")
 async def transcribe_audio(file: UploadFile = File(...)):
@@ -103,5 +115,13 @@ def reset_session(session_id: str):
         raise HTTPException(status_code=404, detail="session not found")
     return {"status": "ok", "session_id": session_id}
 
+@app.post("/v1/reserver_salle")
+def reserver_salle_endpoint(req: ReservationRequest):
+    try:
+        reservation_id = reserver_salle(req.model_dump())
+        return {"status": "success", "reservation_id": str(reservation_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
