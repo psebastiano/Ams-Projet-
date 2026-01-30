@@ -4,54 +4,7 @@ from pathlib import Path
 import spacy
 from spacy.training.example import Example
 
-# Expanded dataset (keep it small but more varied). Each example will be converted
-# to exclusive classes across all labels.
-RAW_TRAIN_DATA = [
-    # greeting
-    ("bonjour", "greeting"),
-    ("salut", "greeting"),
-    ("bonsoir", "greeting"),
-    ("salut robot", "greeting"),
-    ("hello", "greeting"),
-
-    # ask_hours
-    ("quels sont vos horaires", "ask_hours"),
-    ("quels sont les horaires d'ouverture", "ask_hours"),
-    ("à quelle heure vous ouvrez", "ask_hours"),
-    ("à quelle heure vous fermez", "ask_hours"),
-    ("c'est ouvert aujourd'hui", "ask_hours"),
-    ("vous êtes ouverts le dimanche ?", "ask_hours"),
-
-    # ask_activities
-    ("quelles activités proposez-vous", "ask_activities"),
-    ("quels sports sont disponibles", "ask_activities"),
-    ("quelles activités sont disponibles", "ask_activities"),
-    ("le programme des cours", "ask_activities"),
-    ("vous proposez du yoga ?", "ask_activities"),
-    ("il y a des cours de fitness ?", "ask_activities"),
-
-    # navigate
-    ("où est la salle de sport", "navigate"),
-    ("où se trouve le vestiaire", "navigate"),
-    ("peux-tu m'orienter vers le vestiaire", "navigate"),
-    ("comment aller au terrain", "navigate"),
-    ("je cherche l'accueil", "navigate"),
-    ("où est le secrétariat", "navigate"),
-
-    # book_activity
-    ("je veux m'inscrire au yoga", "book_activity"),
-    ("je voudrais réserver un cours de fitness", "book_activity"),
-    ("réserver un cours", "book_activity"),
-    ("faire une réservation", "book_activity"),
-    ("inscription au basket", "book_activity"),
-    ("je veux faire du football", "book_activity"),
-
-    # who_are_you
-    ("qui es-tu", "who_are_you"),
-    ("tu es qui", "who_are_you"),
-    ("quel est ton rôle", "who_are_you"),
-    ("tu sers à quoi", "who_are_you"),
-]
+from configs.intents import RAW_TRAIN_DATA
 
 
 def _to_exclusive_cats(data: list[tuple[str, str]], labels: list[str]):

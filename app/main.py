@@ -92,6 +92,10 @@ def parse(req: ParseRequest):
     # result = nlu.parse(req.text, req.lang)
     result = nlu.parse(req.text)
     return ParseResponse(intent=result["intent"], confidence=result["confidence"], entities=result["entities"])
+@app.post("/v1/parse_all_inents", response_model=Dict[str, Any])
+def parse_all_intents(req: ParseRequest):
+    result = nlu.parse_intents_confidences(req.text)
+    return result
 
 @app.post("/v1/respond", response_model=RespondResponse)
 def respond(req: RespondRequest):

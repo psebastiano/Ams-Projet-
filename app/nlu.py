@@ -26,7 +26,7 @@ class NLU:
         entity_path = Path(os.getenv("ENTITY_MODEL_PATH", str(entity_path)))
 
         thr_env = os.getenv("NLU_INTENT_THRESHOLD")
-        self.threshold = threshold if threshold is not None else (float(thr_env) if thr_env else 0.4)
+        self.threshold = threshold if threshold is not None else (float(thr_env) if thr_env else 0.3)
 
         dbg_env = os.getenv("NLU_DEBUG")
         self.debug = debug if debug is not None else (dbg_env == "1")
@@ -62,8 +62,11 @@ class NLU:
             print("[NLU] Injected default EntityRuler patterns:", len(ruler.patterns))
             print("[NLU] entity_model pipes:", self.entity_nlp.pipe_names)
 
+    def __normalize_text(self, text: str) -> str:
+        return (text or "").strip().lower()
+    
     def parse(self, text: str, lang: str = "fr") -> Dict[str, Any]:
-        text_in = (text or "").strip()
+        text_in = self.__normalize_text(text)
         if not text_in:
             return {"intent": "unknown", "confidence": 0.0, "entities": {}, "raw_text": text}
 
@@ -92,3 +95,17 @@ class NLU:
             "entities": entities,
             "raw_text": text,
         }
+    
+    def parse_intents_confidences(self, text: str) -> Dict[str, float]:
+        text_in = self.__normalize_text(text)
+        if not text_in:
+            return {}
+
+        doc_intent = self.intent_nlp(text_in)
+        intents_confidences: Dict[str, float] = {}
+
+        if getattr(doc_intent, "cats", None):
+            for intent, conf in doc_intent.cats.items():
+                intents_confidences[intent] = round(float(conf), 2)
+
+        return intents_confidences

@@ -35,10 +35,10 @@ class ASRModule:
         print(f"[ASR] Chargement du modèle Whisper ({model_size})...")
         # "int8" permet de rendre le modèle encore plus léger
         self.model = WhisperModel(model_size,
-                                  device="cuda",
-                                #   device="cpu",
-                                  compute_type="int8_float16")
-                                #   compute_type="int8")
+                                #   device="cuda",
+                                  device="cpu",
+                                #   compute_type="int8_float16")
+                                  compute_type="int8")
         
         self.logprob_threshold = logprob_threshold # Plus bas : modèle trop incertain
         self.nospeech_threshold = nospeech_threshold # Plus haut : Plus de tolérance au bruit
